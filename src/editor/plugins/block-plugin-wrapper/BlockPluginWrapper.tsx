@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, forwardRef } from "react";
 import { NodeViewWrapper } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
+import { TextSelection } from "@tiptap/pm/state";
 import type { BlockPluginCommand } from "./types";
 
 type BlockPluginWrapperProps = {
@@ -104,6 +105,13 @@ export const BlockPluginWrapper = forwardRef<
     editor
       .chain()
       .cut({ from: pos, to: pos + nodeToMove.nodeSize }, targetPos)
+      .command(({ tr }) => {
+        const mappedTarget = tr.mapping.map(targetPos);
+        tr.setSelection(
+          TextSelection.create(tr.doc, Math.min(mappedTarget + 1, tr.doc.content.size - 1))
+        );
+        return true;
+      })
       .run();
     closeMenu();
   };
@@ -168,6 +176,7 @@ export const BlockPluginWrapper = forwardRef<
         >
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={handleDelete}
             className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             role="menuitem"
@@ -176,6 +185,7 @@ export const BlockPluginWrapper = forwardRef<
           </button>
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={handleMoveUp}
             disabled={!canMoveUp}
             className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -185,6 +195,7 @@ export const BlockPluginWrapper = forwardRef<
           </button>
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={handleMoveDown}
             disabled={!canMoveDown}
             className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"

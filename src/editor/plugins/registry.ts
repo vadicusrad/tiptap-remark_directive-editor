@@ -6,6 +6,7 @@ import { badgeConfig } from "./badge/config";
 import { columnConfig, columnsConfig } from "./columns/config";
 import { tooltipConfig } from "./tooltip/config";
 import { leadConfig } from "./lead/config";
+import { productConfig } from "./product/config";
 
 /** Все конфиги плагинов. Добавление плагина = импорт + добавление в массив */
 const PLUGIN_CONFIGS: PluginConfig[] = [
@@ -15,6 +16,7 @@ const PLUGIN_CONFIGS: PluginConfig[] = [
   columnConfig,
   columnsConfig,
   tooltipConfig,
+  productConfig,
 ];
 
 const CONTAINER_PLUGINS = new Map<string, PluginConfig>();
