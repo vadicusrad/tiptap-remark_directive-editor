@@ -1,4 +1,6 @@
+import type { ComponentType } from "react";
 import { Node } from "@tiptap/core";
+import type { ReactNodeViewProps } from "@tiptap/react";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { AlertWidget } from "./alert.nodeview";
 
@@ -29,6 +31,8 @@ export const AlertExtension = Node.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(AlertWidget);
+    return ReactNodeViewRenderer(
+      AlertWidget as ComponentType<ReactNodeViewProps>
+    );
   },
 });

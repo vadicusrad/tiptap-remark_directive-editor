@@ -1,9 +1,9 @@
 "use client";
 
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
+import { withBlockPluginWrapper } from "../block-plugin-wrapper";
 
-/** React NodeView для блока columns. Рендерит grid с двумя колонками */
-export function ColumnsWidget() {
+function ColumnsWidgetInner() {
   return (
     <NodeViewWrapper
       as="div"
@@ -14,3 +14,6 @@ export function ColumnsWidget() {
     </NodeViewWrapper>
   );
 }
+
+/** React NodeView для блока columns с меню команд */
+export const ColumnsWidget = withBlockPluginWrapper(ColumnsWidgetInner);

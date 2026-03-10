@@ -1,4 +1,6 @@
+import type { ComponentType } from "react";
 import { Node } from "@tiptap/core";
+import type { ReactNodeViewProps } from "@tiptap/react";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ColumnsWidget } from "./columns.nodeview";
 
@@ -19,6 +21,8 @@ export const ColumnsExtension = Node.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(ColumnsWidget);
+    return ReactNodeViewRenderer(
+      ColumnsWidget as ComponentType<ReactNodeViewProps>
+    );
   },
 });

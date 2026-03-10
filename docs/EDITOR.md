@@ -88,6 +88,17 @@ Inline-подсказка при наведении.
 - **Markdown:** `::::columns` + `:::column` ... `:::`
 - **Вставка:** slash-меню → Columns
 
+### Обёртка block-плагинов (BlockPluginWrapper)
+
+Block-плагины (alert, lead, columns, column) обёрнуты в `BlockPluginWrapper`. При наведении на блок слева появляется кнопка меню (три точки). По клику открывается dropdown с командами:
+
+- **Удалить** — удаляет блок
+- **Переместить выше** — меняет порядок с предыдущим sibling
+- **Переместить ниже** — меняет порядок со следующим sibling
+- **Кастомные команды** — опционально, передаются через `withBlockPluginWrapper(Component, { customCommands })`
+
+Использование: `withBlockPluginWrapper(MyWidget, { customCommands: [{ id, label, onClick }] })`. Inline-плагины (badge, tooltip) пока без обёртки.
+
 ## Slash-меню
 
 При вводе `/` открывается меню с пунктами: Columns, Alert, Badge, Tooltip.
@@ -181,6 +192,7 @@ src/
     plugins/
       plugin-types.ts      # Интерфейсы PMNode, PluginConfig
       plugin-factories.ts  # createContainerPlugin, createTextPlugin, createSlashInsert
+      block-plugin-wrapper/  # Обёртка с меню для block-плагинов
       registry.ts         # Реестр плагинов
       alert/           # config + extension + NodeView
       badge/

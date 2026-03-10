@@ -5,7 +5,11 @@ import { Editor } from "@/components/Editor/Editor";
 import { parseMarkdown } from "@/editor/markdown/parseMarkdown";
 import { mdastToPm } from "@/editor/markdown/mdastToPm";
 
-const EXAMPLE_MARKDOWN = `# Демо возможностей редактора
+const EXAMPLE_MARKDOWN = `# Демо
+
+:::lead
+Это блок lead.
+:::
 
 Параграф с **жирным**, *курсивом*, \`inline code\` и [ссылкой](https://example.com).
 

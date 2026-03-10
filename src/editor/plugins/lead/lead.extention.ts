@@ -1,4 +1,6 @@
+import type { ComponentType } from "react";
 import { Node } from "@tiptap/core";
+import type { ReactNodeViewProps } from "@tiptap/react";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { LeadWidget } from "./lead.nodeview";
 
@@ -17,6 +19,8 @@ export const LeadExtension = Node.create({
     return {};
   },
   addNodeView() {
-    return ReactNodeViewRenderer(LeadWidget);
+    return ReactNodeViewRenderer(
+      LeadWidget as ComponentType<ReactNodeViewProps>
+    );
   },
 });
