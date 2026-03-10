@@ -58,7 +58,7 @@ export function Editor({ content, onSave }: EditorProps) {
       <EditorToolbar editor={editor} />
       <EditorContent editor={editor} />
       {onSave && (
-        <div className="border-t p-2 bg-gray-50 dark:bg-gray-900">
+        <div className="border-t p-2 bg-gray-50">
           <button
             type="button"
             onClick={handleSave}

@@ -24,8 +24,8 @@ function ToolbarButton({
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 ${
-        isActive ? "bg-gray-200 dark:bg-gray-700" : ""
+      className={`p-2 rounded hover:bg-gray-200 ${
+        isActive ? "bg-gray-200" : ""
       }`}
     >
       {children}
@@ -52,7 +52,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   };
 
   return (
-    <div className="flex flex-wrap gap-1 border-b p-2 bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-wrap gap-1 border-b p-2 bg-gray-50 ">
       <div className="flex gap-0.5">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -86,21 +86,27 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
           <span className="text-sm">P</span>
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
           isActive={editor.isActive("heading", { level: 1 })}
           ariaLabel="Заголовок 1"
         >
           <span className="text-sm font-semibold">H1</span>
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           isActive={editor.isActive("heading", { level: 2 })}
           ariaLabel="Заголовок 2"
         >
           <span className="text-sm font-semibold">H2</span>
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           isActive={editor.isActive("heading", { level: 3 })}
           ariaLabel="Заголовок 3"
         >
