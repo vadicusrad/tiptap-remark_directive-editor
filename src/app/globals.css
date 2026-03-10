@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground: #ededed;
+  }
+}
+
+/* body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+} */
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.alert-info {
+  background-color: #e0f2fe;
+  border-color: #0ea5e9;
+}
+.alert-warning {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+}
+.alert-error {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+}
+.dark .alert-info {
+  background-color: #0c4a6e;
+  border-color: #38bdf8;
+}
+.dark .alert-warning {
+  background-color: #78350f;
+  border-color: #fbbf24;
+}
+.dark .alert-error {
+  background-color: #7f1d1d;
+  border-color: #f87171;
+}
+
+/* columns: contentDOM должен иметь display:contents, чтобы две колонки стали прямыми детьми grid */
+[data-columns] [data-node-view-content-react] {
+  display: contents;
+}
