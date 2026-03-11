@@ -14,7 +14,7 @@ const ALERT_TYPES = [
 ] as const;
 
 const customCommands = ALERT_TYPES.map(({ type, label }) => ({
-  id: "changeAlertType",
+  id: `changeAlertType${type}`,
   label,
   onClick: (editor: Editor, getPos: () => number | undefined) => {
     const pos = getPos();

@@ -1,6 +1,7 @@
 /** Плагин Tooltip: inline-подсказка (:tooltip[текст]{content="..."}) */
 import { registerDirective } from "@/editor/directives/registry";
 import { TooltipWidget } from "./tooltip.widget";
+import { Editor } from "@tiptap/core";
 
 registerDirective({
   name: "tooltip",
@@ -30,4 +31,25 @@ registerDirective({
       .setTextSelection(from + 1)
       .run();
   },
+  customCommands: [
+    {
+      id: "changeTooltipContent",
+      label: "Изменить подсказку",
+      onClick: (editor: Editor, getPos: () => number | undefined) => {
+        const pos = getPos();
+        if (pos === undefined) return;
+        const node = editor.state.doc.resolve(pos).nodeAfter;
+        if (!node) return;
+        const props = (node.attrs.props as Record<string, unknown>) ?? {};
+        const currentContent = (props.content as string) ?? "";
+        const content = window.prompt("Текст подсказки:", currentContent);
+        if (content === null || content === "") return;
+        editor
+          .chain()
+          .setNodeSelection(pos)
+          .updateAttributes("directiveText", { props: { ...props, content } })
+          .run();
+      },
+    },
+  ],
 });
