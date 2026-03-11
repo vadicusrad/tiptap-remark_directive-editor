@@ -108,7 +108,10 @@ export const BlockPluginWrapper = forwardRef<
       .command(({ tr }) => {
         const mappedTarget = tr.mapping.map(targetPos);
         tr.setSelection(
-          TextSelection.create(tr.doc, Math.min(mappedTarget + 1, tr.doc.content.size - 1))
+          TextSelection.create(
+            tr.doc,
+            Math.min(mappedTarget + 1, tr.doc.content.size - 1)
+          )
         );
         return true;
       })
@@ -216,6 +219,9 @@ export const BlockPluginWrapper = forwardRef<
                   role="menuitem"
                 >
                   {cmd.label}
+                  {cmd.isActive && cmd.isActive(editor, getPos) && (
+                    <span className="text-green-500">✓</span>
+                  )}
                 </button>
               ))}
             </>

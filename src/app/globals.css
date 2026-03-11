@@ -36,15 +36,7 @@
   background-color: #fee2e2;
   border-color: #ef4444;
 }
-.dark .alert-info {
-  background-color: #0c4a6e;
-  border-color: #38bdf8;
-}
-.dark .alert-warning {
-  background-color: #78350f;
-  border-color: #fbbf24;
-}
-.dark .alert-error {
-  background-color: #7f1d1d;
-  border-color: #f87171;
+.alert-success {
+  background-color: #d1fae5;
+  border-color: #10b981;
 }
