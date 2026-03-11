@@ -33,7 +33,7 @@ const EXAMPLE_MARKDOWN = `# Демо
 Ошибка
 :::
 
-Метки: :badge[inline] и :badge[New]. Подсказка: :tooltip[наведи]{content="Привет!"}.
+Метки: :badge[inline]{badgeType="error"} и :badge[New]{badgeType="success"}. Подсказка: :tooltip[наведи]{content="Привет!"}.
 
 ::badge[Block badge]
 

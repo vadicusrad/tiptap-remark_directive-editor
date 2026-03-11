@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import type { Editor } from "@tiptap/core";
 import type { ReactNodeViewProps } from "@tiptap/react";
 import type { BlockPluginCommand } from "@/editor/plugins/block-plugin-wrapper/types";
+import type { InlinePluginCommand } from "@/editor/plugins/inline-plugin-wrapper/types";
 
 /** Тип директивы: leaf (::name), container (:::name), text (:name[]) */
 export type DirectiveType = "leaf" | "container" | "text";
@@ -17,7 +18,7 @@ export type DirectiveType = "leaf" | "container" | "text";
  * @property slashCommand - показывать в slash-меню
  * @property slashMenu - title и keywords для slash-меню
  * @property onSlashSelect - callback при выборе из slash-меню
- * @property customCommands - команды в меню блока (только leaf/container)
+ * @property customCommands - команды в меню (BlockPluginCommand для leaf/container, InlinePluginCommand для text)
  */
 export interface DirectiveConfig {
   name: string;
@@ -35,7 +36,7 @@ export interface DirectiveConfig {
   slashMenu?: { title: string; keywords: string[] };
   onSlashSelect?: (editor: Editor) => void;
   icon?: ComponentType;
-  customCommands?: BlockPluginCommand[];
+  customCommands?: BlockPluginCommand[] | InlinePluginCommand[];
 }
 
 const LEAF_DIRECTIVES = new Map<string, DirectiveConfig>();
