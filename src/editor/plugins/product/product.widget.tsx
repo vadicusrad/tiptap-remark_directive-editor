@@ -1,31 +1,8 @@
 "use client";
 
 import { NodeViewWrapper } from "@tiptap/react";
-import { withBlockPluginWrapper } from "../block-plugin-wrapper";
 import { useEffect, useState } from "react";
-import type { ReactNodeViewProps } from "@tiptap/react";
-import type { BlockPluginCommand } from "../block-plugin-wrapper/types";
-
-const PRODUCT_CUSTOM_COMMANDS: BlockPluginCommand[] = [
-  {
-    id: "changeButtonText",
-    label: "Сменить текст кнопки",
-    onClick: (editor, getPos) => {
-      const pos = getPos();
-      if (pos === undefined) return;
-      const node = editor.state.doc.resolve(pos).nodeAfter;
-      if (!node) return;
-      const currentText = (node.attrs.buttonText as string) || "Купить";
-      const text = window.prompt("Текст кнопки:", currentText);
-      if (text === null || text === "") return;
-      editor
-        .chain()
-        .setNodeSelection(pos)
-        .updateAttributes("product", { buttonText: text })
-        .run();
-    },
-  },
-];
+import type { DirectiveNodeViewProps } from "@/editor/directives/types";
 
 const productCache = new Map<
   string,
@@ -37,9 +14,11 @@ const productCache = new Map<
   }
 >();
 
-function ProductWidgetInner({ node }: ReactNodeViewProps) {
-  const productId = node.attrs.id ?? "";
-  const buttonText = (node.attrs.buttonText as string) || "Купить";
+/** Виджет продукта для leaf-директивы ::product{id, buttonText} */
+export function ProductWidget({ node }: DirectiveNodeViewProps) {
+  const props = (node.attrs.props ?? {}) as Record<string, unknown>;
+  const productId = (props.id as string) ?? "";
+  const buttonText = (props.buttonText as string) || "Купить";
 
   const [product, setProduct] = useState<{
     name: string;
@@ -104,8 +83,3 @@ function ProductWidgetInner({ node }: ReactNodeViewProps) {
     </NodeViewWrapper>
   );
 }
-
-/** React NodeView для блока product с меню команд */
-export const ProductWidget = withBlockPluginWrapper(ProductWidgetInner, {
-  customCommands: PRODUCT_CUSTOM_COMMANDS,
-});

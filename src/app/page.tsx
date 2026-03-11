@@ -37,15 +37,6 @@ const EXAMPLE_MARKDOWN = `# Демо
 
 ::badge[Block badge]
 
-::::columns
-:::column
-Колонка 1
-:::
-:::column
-Колонка 2
-:::
-::::
-
 > Цитата
 
 \`\`\`js

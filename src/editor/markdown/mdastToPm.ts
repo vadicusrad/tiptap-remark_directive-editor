@@ -1,9 +1,9 @@
 import type { Root, RootContent } from "mdast";
 import {
-  getContainerConverter,
-  getLeafConverter,
-  getTextConverter,
-} from "@/editor/plugins/registry";
+  getLeafDirective,
+  getContainerDirective,
+  getTextDirective,
+} from "@/editor/directives/registry";
 import type { PMNode } from "@/editor/plugins/plugin-types";
 
 export type { PMNode };
@@ -52,10 +52,18 @@ function convertPhrasingContent(
         marks: [{ type: "code" }],
       };
     case "textDirective": {
-      const converter = getTextConverter(node.name);
-      if (converter) {
-        const r = converter.mdastToPm(node, helpers);
-        return Array.isArray(r) ? r[0] ?? null : r;
+      const config = getTextDirective(node.name);
+      if (config) {
+        const props = config.attrsFromMdast?.(node as { attributes?: Record<string, unknown> }) ?? (node.attributes as Record<string, unknown>) ?? {};
+        const children = (node.children ?? []).flatMap((c) => {
+          const n = helpers.convertPhrasingContent(c);
+          return n ? [n] : [];
+        });
+        return {
+          type: "directiveText",
+          attrs: { name: node.name, props },
+          content: children.length ? children : [{ type: "text", text: "" }],
+        };
       }
       return null;
     }
@@ -129,11 +137,19 @@ function convertBlockContent(
       return content.length ? { type: "listItem", content } : null;
     }
     case "containerDirective": {
-      const converter = getContainerConverter(node.name);
-      if (converter) {
-        const r = converter.mdastToPm(node, helpers);
-        if (r === null) return null;
-        return Array.isArray(r) ? r[0] ?? null : r;
+      const config = getContainerDirective(node.name);
+      if (config) {
+        const props = config.attrsFromMdast?.(node as { attributes?: Record<string, unknown> }) ?? (node.attributes as Record<string, unknown>) ?? {};
+        const blockContent = (node.children ?? []).flatMap((c) => {
+          const n = helpers.convertBlockContent(c);
+          return n ? [n] : [];
+        });
+        const defaultContent = [{ type: "paragraph" }];
+        return {
+          type: "directiveContainer",
+          attrs: { name: node.name, props },
+          content: blockContent.length ? blockContent : defaultContent,
+        };
       }
       return null;
     }
@@ -189,11 +205,19 @@ function flattenInlineWithMarks(
     ];
   }
   if (node.type === "textDirective") {
-    const converter = getTextConverter(node.name);
-    if (converter) {
-      const r = converter.mdastToPm(node, helpers);
-      if (r === null) return [];
-      return Array.isArray(r) ? r : [r];
+    const config = getTextDirective(node.name);
+    if (config) {
+      const props = config.attrsFromMdast?.(node) ?? (node.attributes as Record<string, unknown>) ?? {};
+      const children = (node.children ?? []).flatMap((c) =>
+        flattenInlineWithMarks(c, helpers)
+      );
+      return [
+        {
+          type: "directiveText",
+          attrs: { name: node.name, props },
+          content: children.length ? children : [{ type: "text", text: "" }],
+        },
+      ];
     }
   }
   return [];
@@ -275,22 +299,28 @@ export function mdastToPm(tree: Root): { type: "doc"; content: PMNode[] } {
         });
       }
     } else if (node.type === "containerDirective") {
-      const converter = getContainerConverter(node.name);
-      if (converter) {
-        const r = converter.mdastToPm(node, helpers);
-        if (r !== null) {
-          const arr = Array.isArray(r) ? r : [r];
-          content.push(...arr);
-        }
+      const config = getContainerDirective(node.name);
+      if (config) {
+        const props = config.attrsFromMdast?.(node as { attributes?: Record<string, unknown> }) ?? (node.attributes as Record<string, unknown>) ?? {};
+        const blockContent = (node.children ?? []).flatMap((c) => {
+          const n = convertBlockContent(c, helpers);
+          return n ? [n] : [];
+        });
+        const defaultContent = [{ type: "paragraph" }];
+        content.push({
+          type: "directiveContainer",
+          attrs: { name: node.name, props },
+          content: blockContent.length ? blockContent : defaultContent,
+        });
       }
     } else if (node.type === "leafDirective") {
-      const converter = getLeafConverter(node.name);
-      if (converter) {
-        const r = converter.mdastToPm(node, helpers);
-        if (r !== null) {
-          const arr = Array.isArray(r) ? r : [r];
-          content.push(...arr);
-        }
+      const config = getLeafDirective(node.name);
+      if (config) {
+        const props = (node.attributes as Record<string, unknown>) ?? {};
+        content.push({
+          type: "directiveLeaf",
+          attrs: { name: node.name, props },
+        });
       }
     }
   }

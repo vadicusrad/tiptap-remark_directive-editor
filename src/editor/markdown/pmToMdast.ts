@@ -1,5 +1,8 @@
 import type { Root, RootContent, Paragraph, PhrasingContent } from "mdast";
-import { getPmToMdastConverter } from "@/editor/plugins/registry";
+import {
+  getContainerDirective,
+  getTextDirective,
+} from "@/editor/directives/registry";
 import type { PMNode } from "@/editor/plugins/plugin-types";
 
 export type { PMNode };
@@ -45,9 +48,23 @@ async function convertInlineToPhrasing(
     if (!text) return [];
     return [convertMarksToPhrasing(text, node.marks)];
   }
-  const plugin = getPmToMdastConverter(node.type);
-  if (plugin?.pmToPhrasing) {
-    return plugin.pmToPhrasing(node, helpers);
+  if (node.type === "directiveText") {
+    const name = node.attrs?.name as string;
+    const props = (node.attrs?.props as Record<string, unknown>) ?? {};
+    const config = getTextDirective(name);
+    const attributes = config?.attrsFromPm?.(node) ?? props;
+    const results = await Promise.all(
+      (node.content ?? []).map(helpers.convertInlineToPhrasing)
+    );
+    const children = results.flat();
+    return [
+      {
+        type: "textDirective",
+        name,
+        attributes: Object.keys(attributes).length ? attributes : undefined,
+        children: children.length ? children : [{ type: "text", value: "" }],
+      } as PhrasingContent,
+    ];
   }
   return [];
 }
@@ -131,19 +148,44 @@ async function convertBlockToMdast(
         ? ({ type: "listItem", children: content } as RootContent)
         : null;
     }
-    default: {
-      const plugin = getPmToMdastConverter(node.type);
-      if (plugin?.pmToMdast) {
-        return plugin.pmToMdast(node, helpers);
-      }
-      return null;
+    case "directive":
+    case "directiveLeaf": {
+      const name = node.attrs?.name as string;
+      const props = (node.attrs?.props as Record<string, unknown>) ?? {};
+      return {
+        type: "leafDirective",
+        name,
+        attributes: Object.keys(props).length ? props : undefined,
+        children: [],
+      } as RootContent;
     }
+    case "directiveContainer": {
+      const name = node.attrs?.name as string;
+      const props = (node.attrs?.props as Record<string, unknown>) ?? {};
+      const config = getContainerDirective(name);
+      const attributes = config?.attrsFromPm?.(node) ?? props;
+      const results = await Promise.all(
+        (node.content ?? []).map(helpers.convertBlockToMdast)
+      );
+      const children = results.filter(
+        (n): n is RootContent => n !== null
+      );
+      if (!children.length) return null;
+      return {
+        type: "containerDirective",
+        name,
+        attributes: Object.keys(attributes).length ? attributes : undefined,
+        children,
+      } as RootContent;
+    }
+    default:
+      return null;
   }
 }
 
 /**
  * Конвертирует документ ProseMirror (JSON) в MDAST.
- * Преобразует кастомные ноды (alert, badge, tooltip, columns) в директивы remark-directive через реестр плагинов.
+ * Преобразует кастомные ноды (alert, badge, tooltip) в директивы remark-directive через реестр плагинов.
  * @param doc - корневая нода документа (type: "doc" с content)
  * @returns Promise MDAST Root
  */

@@ -9,9 +9,11 @@ WYSIWYG-редактор Markdown с поддержкой директив (rema
 Поддерживаются кастомные директивы:
 
 - **Alert** — блок-уведомление (info, warning, success, error)
-- **Badge** — inline-метка
+- **Lead** — блок-лид (выделенный параграф)
+- **Badge** — inline-метка (`:badge[текст]`)
 - **Tooltip** — inline-подсказка при наведении
 - **Columns** — блок с двумя колонками
+- **Product** — leaf-виджет продукта (`::product{id="..."}`)
 
 ## Архитектура
 
@@ -45,7 +47,7 @@ flowchart TB
 | **MDAST** | Markdown Abstract Syntax Tree (unified/remark) |
 | **ProseMirror** | JSON-документ (TipTap/ProseMirror) |
 | **TipTap** | Редактор, управление состоянием |
-| **React NodeViews** | UI для alert, badge, tooltip |
+| **React NodeViews** | UI для alert, badge, tooltip, product (leaf через DirectiveNodeView) |
 
 ## Плагины
 
@@ -58,16 +60,21 @@ flowchart TB
 - **Markdown:** `:::alert{type="warning"} ... :::`
 - **Вставка:** slash-меню → Alert
 
+### Lead
+
+Блок-лид (выделенный параграф).
+
+- **Тип:** block
+- **Markdown:** `:::lead ... :::`
+- **Вставка:** slash-меню → Lead
+
 ### Badge
 
-Inline-метка, ширина по контенту.
+Inline-метка с редактируемым текстом.
 
-- **Тип:** inline
-- **Контент:** редактируемый текст
-- **Markdown:** `:badge[текст]` (text directive, в тексте) или `::badge[текст]` (leaf directive, **на отдельной строке**)
-- **Вставка:** slash-меню → Badge, курсор внутри
-
-Leaf-директива `::` работает только на своей строке; в середине параграфа она не парсится.
+- **Тип:** text (inline)
+- **Markdown:** `:badge[текст]`
+- **Вставка:** slash-меню → Badge
 
 ### Tooltip
 
@@ -79,6 +86,18 @@ Inline-подсказка при наведении.
 - **Markdown:** `:tooltip[видимый]{content="подсказка"}`
 - **Вставка:** slash-меню → два prompt (видимый текст, текст подсказки)
 
+### Product
+
+Leaf-виджет продукта (карточка с данными по id).
+
+- **Тип:** leaf (block, atom)
+- **Атрибуты:** `id`, `buttonText`
+- **Markdown:** `::product{id="55201" buttonText="Купить"}`
+- **Вставка:** slash-меню → Product, prompt для id
+- **Команды:** «Сменить текст кнопки» в меню блока
+
+Использует универсальный directiveLeaf node (см. «Унифицированные директивы»).
+
 ### Columns
 
 Блок с двумя колонками.
@@ -87,6 +106,44 @@ Inline-подсказка при наведении.
 - **Контент:** две column-ноды с block-контентом
 - **Markdown:** `::::columns` + `:::column` ... `:::`
 - **Вставка:** slash-меню → Columns
+
+### Унифицированные директивы (registerDirective)
+
+Все плагины регистрируются через единый `registerDirective()` с указанием типа:
+
+```ts
+// leaf (::product{id})
+registerDirective({
+  name: "product",
+  type: "leaf",
+  component: ProductWidget,
+  defaultProps: { id: "", buttonText: "Купить" },
+  slashMenu: { title: "Product", keywords: ["product"] },
+  onSlashSelect: (editor) => { ... },
+  customCommands: [...],
+});
+
+// container (:::alert{type}...:::)
+registerDirective({
+  name: "alert",
+  type: "container",
+  component: AlertWidget,
+  defaultProps: { type: "info" },
+  slashMenu: { title: "Alert", keywords: ["alert"] },
+  onSlashSelect: (editor) => { ... },
+});
+
+// text (:badge[текст])
+registerDirective({
+  name: "badge",
+  type: "text",
+  component: BadgeWidget,
+  slashMenu: { title: "Badge", keywords: ["badge"] },
+  onSlashSelect: (editor) => { ... },
+});
+```
+
+Три общих TipTap-ноды: `directiveLeaf`, `directiveContainer`, `directiveText`. Extension писать не нужно.
 
 ### Обёртка block-плагинов (BlockPluginWrapper)
 
@@ -101,13 +158,13 @@ Block-плагины (alert, lead, columns, column) обёрнуты в `BlockPl
 
 ## Slash-меню
 
-При вводе `/` открывается меню с пунктами: Columns, Alert, Badge, Tooltip.
+При вводе `/` открывается меню с пунктами: Columns, Alert, Lead, Badge, Product, Tooltip.
 
 - **Поиск:** фильтрация по `title` и `keywords`
 - **Навигация:** ArrowUp/ArrowDown, Enter — выбор
 - **Клик:** выбор пункта
 
-Пункты задаются в конфиге плагина (`slashMenu`). Добавление нового пункта — через реестр плагинов (см. раздел «Реестр плагинов»).
+Пункты задаются в `registerDirective()` (slashMenu, onSlashSelect) или в `createContainerPlugin` для columns. Добавление нового пункта — через реестр (см. «Реестр плагинов»).
 
 ## Использование
 
@@ -138,21 +195,26 @@ const initialContent = mdastToPm(tree);
 | Тип | Синтаксис | Пример |
 |-----|-----------|--------|
 | Container | `:::name{attrs} ... :::` | `:::alert{type="warning"} ... :::` |
-| Leaf | `::name{attrs}` или `::name[label]` | `::badge[New]` |
+| Leaf | `::name{attrs}` | `::product{id="55201"}` |
 | Text | `:name[текст]{attrs}` | `:tooltip[hover me]{content="Hi"}` |
 
-Количество двоеточий: 1 — text, 2 — leaf, 3+ — container.
+Количество двоеточий: 1 — text, 2 — leaf, 3+ — container. Leaf-директивы используют единый формат `::name{props}`.
 
 ## Реестр плагинов
 
-Плагины регистрируются через конфиг. Добавление нового плагина:
+### Унифицированные плагины (registerDirective)
 
-1. Создать папку `plugins/myplugin/`
-2. Добавить `myplugin.extension.ts`, `myplugin.nodeview.tsx`
-3. Добавить `myplugin/config.ts` — использовать фабрики `createContainerPlugin`, `createTextPlugin`, `createSlashInsert` из `plugin-factories.ts` или задать `PluginConfig` вручную
-4. Добавить импорт и регистрацию в `plugins/registry.ts`
+Все плагины (leaf, container, text) регистрируются через `registerDirective()`:
 
-Одна точка подключения — `registry.ts`. Расширения, mdastToPm, pmToMdast и slash-меню читают из реестра.
+1. Создать React-компонент (читает `node.attrs.props`)
+2. Создать `myplugin.plugin.ts` с вызовом `registerDirective({ name, type, component, ... })`
+3. Добавить импорт `import "./myplugin/myplugin.plugin"` в `plugins/registry.ts`
+
+Extension писать не нужно — используются общие `directiveLeaf`, `directiveContainer`, `directiveText`.
+
+### Исключение: columns
+
+Columns имеет вложенную структуру (columns > column > block+). Регистрируется через `createContainerPlugin` в `columns/config.ts`.
 
 ### Асинхронный экспорт при сохранении
 
@@ -179,27 +241,35 @@ pmToMdast: async (node, helpers) => {
 ```
 src/
   components/Editor/
-    Editor.tsx          # Компонент редактора
-    EditorToolbar.tsx   # Тулбар форматирования
+    Editor.tsx
+    EditorToolbar.tsx
   editor/
-    core/
-      extensions.ts    # Регистрация расширений (из реестра)
+    core/extensions.ts
+    directives/
+      registry.ts           # registerDirective, getLeafDirective, getContainerDirective, getTextDirective
+      directive.extension.ts       # directiveLeaf
+      directive-container.extension.ts
+      directive-text.extension.ts
+      DirectiveNodeView.tsx
+      DirectiveContainerNodeView.tsx
+      DirectiveTextNodeView.tsx
+      types.ts
+      index.ts
     markdown/
-      parseMarkdown.ts       # Markdown → MDAST
-      serializeMarkdown.ts   # MDAST → Markdown
-      pmToMdast.ts           # ProseMirror → MDAST (async)
-      mdastToPm.ts           # MDAST → ProseMirror
+      parseMarkdown.ts
+      serializeMarkdown.ts
+      pmToMdast.ts
+      mdastToPm.ts
     plugins/
-      plugin-types.ts      # Интерфейсы PMNode, PluginConfig
-      plugin-factories.ts  # createContainerPlugin, createTextPlugin, createSlashInsert
-      block-plugin-wrapper/  # Обёртка с меню для block-плагинов
-      registry.ts         # Реестр плагинов
-      alert/           # config + extension + NodeView
-      badge/
-      tooltip/
-      columns/
+      plugin-types.ts
+      plugin-factories.ts    # createContainerPlugin (только columns), createSlashInsert
+      block-plugin-wrapper/
+      registry.ts
+      alert/                # alert.plugin.ts, alert.widget.tsx
+      lead/                 # lead.plugin.ts, lead.widget.tsx
+      tooltip/              # tooltip.plugin.ts, tooltip.widget.tsx
+      badge/                # badge.plugin.ts, badge.widget.tsx
+      product/              # product.plugin.ts, product.widget.tsx
+      columns/              # config.ts, column.extension, columns.extension (исключение)
     slash-menu/
-      slash-command.extension.ts  # Extension
-      slash-menu-items.ts         # Пункты меню (из реестра)
-      SlashMenuList.tsx          # UI списка
 ```
