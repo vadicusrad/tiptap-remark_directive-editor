@@ -14,10 +14,10 @@ export const ProductExtension = Node.create({
 
   addAttributes() {
     return {
-      type: {
-        default: "buy",
-        parseHTML: (el) => el.getAttribute("data-type") ?? "buy",
-        renderHTML: (attrs) => ({ "data-type": attrs.type }),
+      buttonText: {
+        default: "Купить",
+        parseHTML: (el) => el.getAttribute("data-buttonText") ?? "Купить",
+        renderHTML: (attrs) => ({ "data-buttonText": attrs.buttonText }),
       },
       id: {
         default: "",
@@ -28,7 +28,7 @@ export const ProductExtension = Node.create({
   },
 
   parseHTML() {
-    return [{ tag: "div[data-type]" }];
+    return [{ tag: "div[data-buttonText]" }];
   },
 
   renderHTML({ HTMLAttributes }) {

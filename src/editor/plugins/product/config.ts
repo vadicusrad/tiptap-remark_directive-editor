@@ -7,17 +7,17 @@ export const productConfig = createContainerPlugin({
   pmType: "product",
   extensions: [ProductExtension],
   attrsFromMdast: (n) => ({
-    type: (n.attributes?.type as string) ?? "buy",
     id: (n.attributes?.id as string) ?? "",
+    buttonText: (n.attributes?.buttonText as string) ?? "Купить",
   }),
   attrsFromPm: (n) => ({
-    type: (n.attrs?.type as string) ?? "buy",
+    buttonText: (n.attrs?.buttonText as string) ?? "Купить",
     id: (n.attrs?.id as string) ?? "",
   }),
-  defaultAttrs: { type: "buy", id: "" },
+  defaultAttrs: { buttonText: "Купить", id: "" },
   slashMenu: {
     title: "Product",
-    keywords: ["product", "product", "product"],
+    keywords: ["product", "купить", "продукт"],
     onSelect: (editor) => {
       const id = window.prompt("id продукта:", "");
       if (id === null || id === "") return;
@@ -28,7 +28,7 @@ export const productConfig = createContainerPlugin({
         .focus()
         .insertContent({
           type: "product",
-          attrs: { id },
+          attrs: { buttonText: "Купить", id },
           content: [{ type: "paragraph" }],
         })
         .setTextSelection(from + 1)

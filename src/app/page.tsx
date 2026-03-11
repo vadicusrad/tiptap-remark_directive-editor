@@ -11,6 +11,10 @@ const EXAMPLE_MARKDOWN = `# Демо
 Это блок lead.
 :::
 
+:::product{id="123"}
+
+:::
+
 Параграф с **жирным**, *курсивом*, \`inline code\` и [ссылкой](https://example.com).
 
 :::alert{type="info"}

@@ -4,6 +4,28 @@ import { NodeViewWrapper } from "@tiptap/react";
 import { withBlockPluginWrapper } from "../block-plugin-wrapper";
 import { useEffect, useState } from "react";
 import type { ReactNodeViewProps } from "@tiptap/react";
+import type { BlockPluginCommand } from "../block-plugin-wrapper/types";
+
+const PRODUCT_CUSTOM_COMMANDS: BlockPluginCommand[] = [
+  {
+    id: "changeButtonText",
+    label: "Сменить текст кнопки",
+    onClick: (editor, getPos) => {
+      const pos = getPos();
+      if (pos === undefined) return;
+      const node = editor.state.doc.resolve(pos).nodeAfter;
+      if (!node) return;
+      const currentText = (node.attrs.buttonText as string) || "Купить";
+      const text = window.prompt("Текст кнопки:", currentText);
+      if (text === null || text === "") return;
+      editor
+        .chain()
+        .setNodeSelection(pos)
+        .updateAttributes("product", { buttonText: text })
+        .run();
+    },
+  },
+];
 
 const productCache = new Map<
   string,
@@ -17,6 +39,8 @@ const productCache = new Map<
 
 function ProductWidgetInner({ node }: ReactNodeViewProps) {
   const productId = node.attrs.id ?? "";
+  const buttonText = (node.attrs.buttonText as string) || "Купить";
+
   const [product, setProduct] = useState<{
     name: string;
     price: number;
@@ -63,22 +87,25 @@ function ProductWidgetInner({ node }: ReactNodeViewProps) {
     : product.name;
 
   return (
-    <NodeViewWrapper className="px-4 m-2 py-3">
-      <div className="flex flex-col gap-2">
-        <div className="text-lg font-bold">{displayName}</div>
-        <div className="text-sm text-gray-500">{product.price}</div>
-        <div className="text-sm text-gray-500">{product.brand}</div>
-        <img
-          src={product.image}
-          alt={product.name}
-          width={96}
-          height={96}
-          className="size-24"
-        />
+    <NodeViewWrapper className="p-4 m-2">
+      <div className="flex justify-center gap-2 h-full">
+        <div className="flex flex-col gap-2">
+          <div className="text-lg font-bold">{displayName}</div>
+          <div className="text-sm text-gray-500">{product.price}</div>
+          <div className="text-sm text-gray-500">{product.brand}</div>
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
+            {buttonText}
+          </button>
+        </div>
+        <div className="flex flex-col gap-2 m-0">
+          <img src={product.image} alt={product.name} className="size-28" />
+        </div>
       </div>
     </NodeViewWrapper>
   );
 }
 
 /** React NodeView для блока product с меню команд */
-export const ProductWidget = withBlockPluginWrapper(ProductWidgetInner);
+export const ProductWidget = withBlockPluginWrapper(ProductWidgetInner, {
+  customCommands: PRODUCT_CUSTOM_COMMANDS,
+});
