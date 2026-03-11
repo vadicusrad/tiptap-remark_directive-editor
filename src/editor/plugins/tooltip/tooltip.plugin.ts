@@ -1,3 +1,4 @@
+/** Плагин Tooltip: inline-подсказка (:tooltip[текст]{content="..."}) */
 import { registerDirective } from "@/editor/directives/registry";
 import { TooltipWidget } from "./tooltip.widget";
 

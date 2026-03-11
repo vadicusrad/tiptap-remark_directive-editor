@@ -2,7 +2,7 @@
 
 import { NodeViewWrapper } from "@tiptap/react";
 import { useEffect, useState } from "react";
-import type { DirectiveNodeViewProps } from "@/editor/directives/types";
+import type { ReactNodeViewProps } from "@tiptap/react";
 
 const productCache = new Map<
   string,
@@ -15,7 +15,7 @@ const productCache = new Map<
 >();
 
 /** Виджет продукта для leaf-директивы ::product{id, buttonText} */
-export function ProductWidget({ node }: DirectiveNodeViewProps) {
+export function ProductWidget({ node }: ReactNodeViewProps) {
   const props = (node.attrs.props ?? {}) as Record<string, unknown>;
   const productId = (props.id as string) ?? "";
   const buttonText = (props.buttonText as string) || "Купить";

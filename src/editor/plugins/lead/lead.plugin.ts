@@ -1,3 +1,4 @@
+/** Плагин Lead: блок-лид (:::lead ... :::) */
 import { registerDirective } from "@/editor/directives/registry";
 import { LeadWidget } from "./lead.widget";
 

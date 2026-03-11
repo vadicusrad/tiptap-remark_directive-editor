@@ -1,3 +1,4 @@
+/** Плагин Product: leaf-виджет (::product{id}). Custom command: смена текста кнопки */
 import type { Editor } from "@tiptap/core";
 import { registerDirective } from "@/editor/directives/registry";
 import { ProductWidget } from "./product.widget";

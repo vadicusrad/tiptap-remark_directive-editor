@@ -1,9 +1,9 @@
 "use client";
 
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
-import type { DirectiveNodeViewProps } from "@/editor/directives/types";
+import type { ReactNodeViewProps } from "@tiptap/react";
 
-export const AlertWidget = ({ node }: DirectiveNodeViewProps) => {
+export const AlertWidget = ({ node }: ReactNodeViewProps) => {
   const props = (node.attrs.props ?? {}) as Record<string, unknown>;
   const type = (props.type as string) ?? "info";
   return (

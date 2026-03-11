@@ -8,7 +8,10 @@ import {
 } from "./slash-menu-items";
 import { SlashMenuList } from "./SlashMenuList";
 
-/** Расширение TipTap: slash-меню по "/" для вставки alert, badge, tooltip */
+/**
+ * TipTap extension: slash-меню при вводе "/".
+ * Показывает пункты из SLASH_MENU_ITEMS, фильтрация по title/keywords.
+ */
 export const SlashCommandExtension = Extension.create({
   name: "slashCommand",
 

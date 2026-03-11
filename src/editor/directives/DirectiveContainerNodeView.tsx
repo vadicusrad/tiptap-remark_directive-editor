@@ -5,7 +5,10 @@ import type { ReactNodeViewProps } from "@tiptap/react";
 import { getContainerDirective } from "./registry";
 import { BlockPluginWrapper } from "@/editor/plugins/block-plugin-wrapper";
 
-/** Динамический рендер container-директивы по имени из реестра */
+/**
+ * NodeView для container-директив (:::name{props} ... :::).
+ * Рендерит виджет по node.attrs.name из реестра, оборачивает в BlockPluginWrapper.
+ */
 export function DirectiveContainerNodeView(props: ReactNodeViewProps) {
   const { node, editor, getPos, deleteNode } = props;
   const name = node.attrs.name as string;

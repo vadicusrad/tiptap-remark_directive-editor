@@ -12,7 +12,6 @@ WYSIWYG-редактор Markdown с поддержкой директив (rema
 - **Lead** — блок-лид (выделенный параграф)
 - **Badge** — inline-метка (`:badge[текст]`)
 - **Tooltip** — inline-подсказка при наведении
-- **Columns** — блок с двумя колонками
 - **Product** — leaf-виджет продукта (`::product{id="..."}`)
 
 ## Архитектура
@@ -98,15 +97,6 @@ Leaf-виджет продукта (карточка с данными по id).
 
 Использует универсальный directiveLeaf node (см. «Унифицированные директивы»).
 
-### Columns
-
-Блок с двумя колонками.
-
-- **Тип:** block
-- **Контент:** две column-ноды с block-контентом
-- **Markdown:** `::::columns` + `:::column` ... `:::`
-- **Вставка:** slash-меню → Columns
-
 ### Унифицированные директивы (registerDirective)
 
 Все плагины регистрируются через единый `registerDirective()` с указанием типа:
@@ -147,7 +137,7 @@ registerDirective({
 
 ### Обёртка block-плагинов (BlockPluginWrapper)
 
-Block-плагины (alert, lead, columns, column) обёрнуты в `BlockPluginWrapper`. При наведении на блок слева появляется кнопка меню (три точки). По клику открывается dropdown с командами:
+Block-плагины (alert, lead) обёрнуты в `BlockPluginWrapper`. При наведении на блок слева появляется кнопка меню (три точки). По клику открывается dropdown с командами:
 
 - **Удалить** — удаляет блок
 - **Переместить выше** — меняет порядок с предыдущим sibling
@@ -158,13 +148,13 @@ Block-плагины (alert, lead, columns, column) обёрнуты в `BlockPl
 
 ## Slash-меню
 
-При вводе `/` открывается меню с пунктами: Columns, Alert, Lead, Badge, Product, Tooltip.
+При вводе `/` открывается меню с пунктами: Alert, Lead, Badge, Product, Tooltip.
 
 - **Поиск:** фильтрация по `title` и `keywords`
 - **Навигация:** ArrowUp/ArrowDown, Enter — выбор
 - **Клик:** выбор пункта
 
-Пункты задаются в `registerDirective()` (slashMenu, onSlashSelect) или в `createContainerPlugin` для columns. Добавление нового пункта — через реестр (см. «Реестр плагинов»).
+Пункты задаются в `registerDirective()` (slashMenu, onSlashSelect). Добавление нового пункта — через реестр (см. «Реестр плагинов»).
 
 ## Использование
 
@@ -212,10 +202,6 @@ const initialContent = mdastToPm(tree);
 
 Extension писать не нужно — используются общие `directiveLeaf`, `directiveContainer`, `directiveText`.
 
-### Исключение: columns
-
-Columns имеет вложенную структуру (columns > column > block+). Регистрируется через `createContainerPlugin` в `columns/config.ts`.
-
 ### Асинхронный экспорт при сохранении
 
 `pmToMdast` и конвертеры плагинов (`pmToMdast`, `pmToPhrasing`) — асинхронные. Плагины возвращают `Promise<RootContent | null>` и `Promise<PhrasingContent[]>`. Это позволяет в будущем делать запросы, загружать данные и т.д. перед сериализацией в Markdown.
@@ -235,6 +221,17 @@ pmToMdast: async (node, helpers) => {
   return { type: "containerDirective", name: "myPlugin", attributes: data, children: content.filter(Boolean) };
 }
 ```
+
+## API (JSDoc)
+
+Основные модули и функции документированы JSDoc:
+
+| Модуль | Описание |
+|--------|----------|
+| `@/editor/directives` | `registerDirective`, `DirectiveConfig`, `getLeafDirective`, `getContainerDirective`, `getTextDirective`, `getAllDirectives` |
+| `@/editor/plugins/block-plugin-wrapper` | `BlockPluginWrapper`, `withBlockPluginWrapper`, `BlockPluginCommand` |
+| `@/editor/markdown` | `parseMarkdown`, `mdastToPm`, `pmToMdast`, `serializeMarkdown` |
+| `@/editor/slash-menu` | `SlashMenuItem`, `filterSlashMenuItems`, `SLASH_MENU_ITEMS` |
 
 ## Структура файлов
 
@@ -262,7 +259,6 @@ src/
       mdastToPm.ts
     plugins/
       plugin-types.ts
-      plugin-factories.ts    # createContainerPlugin (только columns), createSlashInsert
       block-plugin-wrapper/
       registry.ts
       alert/                # alert.plugin.ts, alert.widget.tsx
@@ -270,6 +266,5 @@ src/
       tooltip/              # tooltip.plugin.ts, tooltip.widget.tsx
       badge/                # badge.plugin.ts, badge.widget.tsx
       product/              # product.plugin.ts, product.widget.tsx
-      columns/              # config.ts, column.extension, columns.extension (исключение)
     slash-menu/
 ```

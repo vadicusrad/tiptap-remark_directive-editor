@@ -54,7 +54,12 @@ function convertPhrasingContent(
     case "textDirective": {
       const config = getTextDirective(node.name);
       if (config) {
-        const props = config.attrsFromMdast?.(node as { attributes?: Record<string, unknown> }) ?? (node.attributes as Record<string, unknown>) ?? {};
+        const props =
+          config.attrsFromMdast?.(
+            node as { attributes?: Record<string, unknown> }
+          ) ??
+          (node.attributes as Record<string, unknown>) ??
+          {};
         const children = (node.children ?? []).flatMap((c) => {
           const n = helpers.convertPhrasingContent(c);
           return n ? [n] : [];
@@ -139,7 +144,12 @@ function convertBlockContent(
     case "containerDirective": {
       const config = getContainerDirective(node.name);
       if (config) {
-        const props = config.attrsFromMdast?.(node as { attributes?: Record<string, unknown> }) ?? (node.attributes as Record<string, unknown>) ?? {};
+        const props =
+          config.attrsFromMdast?.(
+            node as { attributes?: Record<string, unknown> }
+          ) ??
+          (node.attributes as Record<string, unknown>) ??
+          {};
         const blockContent = (node.children ?? []).flatMap((c) => {
           const n = helpers.convertBlockContent(c);
           return n ? [n] : [];
@@ -207,7 +217,12 @@ function flattenInlineWithMarks(
   if (node.type === "textDirective") {
     const config = getTextDirective(node.name);
     if (config) {
-      const props = config.attrsFromMdast?.(node) ?? (node.attributes as Record<string, unknown>) ?? {};
+      const props =
+        config.attrsFromMdast?.(
+          node as { attributes?: Record<string, unknown> }
+        ) ??
+        (node.attributes as Record<string, unknown>) ??
+        {};
       const children = (node.children ?? []).flatMap((c) =>
         flattenInlineWithMarks(c, helpers)
       );
@@ -301,7 +316,12 @@ export function mdastToPm(tree: Root): { type: "doc"; content: PMNode[] } {
     } else if (node.type === "containerDirective") {
       const config = getContainerDirective(node.name);
       if (config) {
-        const props = config.attrsFromMdast?.(node as { attributes?: Record<string, unknown> }) ?? (node.attributes as Record<string, unknown>) ?? {};
+        const props =
+          config.attrsFromMdast?.(
+            node as { attributes?: Record<string, unknown> }
+          ) ??
+          (node.attributes as Record<string, unknown>) ??
+          {};
         const blockContent = (node.children ?? []).flatMap((c) => {
           const n = convertBlockContent(c, helpers);
           return n ? [n] : [];

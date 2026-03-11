@@ -7,6 +7,7 @@ import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import type { BlockPluginCommand } from "./types";
 
+/** Props для BlockPluginWrapper: editor, getPos, deleteNode, node, customCommands */
 type BlockPluginWrapperProps = {
   children: React.ReactNode;
   editor: Editor;
@@ -16,6 +17,7 @@ type BlockPluginWrapperProps = {
   customCommands?: BlockPluginCommand[];
 };
 
+/** Позиция для вставки при перемещении блока вверх */
 function getMoveUpTargetPos(doc: ProseMirrorNode, from: number): number | null {
   const $pos = doc.resolve(from);
   const index = $pos.index($pos.depth);
@@ -23,6 +25,7 @@ function getMoveUpTargetPos(doc: ProseMirrorNode, from: number): number | null {
   return $pos.posAtIndex(index - 1, $pos.depth);
 }
 
+/** Позиция для вставки при перемещении блока вниз */
 function getMoveDownTargetPos(
   doc: ProseMirrorNode,
   from: number
@@ -35,6 +38,10 @@ function getMoveDownTargetPos(
   return $pos.posAtIndex(index + 1, $pos.depth) + nextSibling.nodeSize;
 }
 
+/**
+ * Обёртка для block-плагинов: кнопка меню (три точки), dropdown с командами
+ * (Удалить, Переместить выше/ниже, customCommands).
+ */
 export const BlockPluginWrapper = forwardRef<
   HTMLElement,
   BlockPluginWrapperProps

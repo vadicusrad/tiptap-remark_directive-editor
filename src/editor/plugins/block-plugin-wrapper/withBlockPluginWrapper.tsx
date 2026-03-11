@@ -9,6 +9,11 @@ type WithBlockPluginWrapperOptions = {
   customCommands?: BlockPluginCommand[];
 };
 
+/**
+ * HOC: оборачивает компонент в BlockPluginWrapper с меню блока.
+ * @param Component - виджет плагина
+ * @param options.customCommands - кастомные команды в меню
+ */
 export function withBlockPluginWrapper<P extends NodeViewProps>(
   Component: React.ComponentType<P>,
   options?: WithBlockPluginWrapperOptions

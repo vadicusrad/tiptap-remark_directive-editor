@@ -10,4 +10,3 @@ export {
   getAllLeafDirectives,
 } from "./registry";
 export type { DirectiveConfig, DirectiveType } from "./registry";
-export type { DirectiveNodeViewProps } from "./types";

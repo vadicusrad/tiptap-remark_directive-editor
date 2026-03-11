@@ -1,9 +1,9 @@
 "use client";
 
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
-import type { DirectiveNodeViewProps } from "@/editor/directives/types";
+import type { ReactNodeViewProps } from "@tiptap/react";
 
-export function TooltipWidget({ node }: DirectiveNodeViewProps) {
+export const TooltipWidget = ({ node }: ReactNodeViewProps) => {
   const props = (node.attrs.props ?? {}) as Record<string, unknown>;
   const content = (props.content as string) ?? "";
   return (
@@ -17,4 +17,4 @@ export function TooltipWidget({ node }: DirectiveNodeViewProps) {
       </span>
     </NodeViewWrapper>
   );
-}
+};

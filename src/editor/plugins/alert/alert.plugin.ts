@@ -1,3 +1,7 @@
+/**
+ * Плагин Alert: блок-уведомление (:::alert{type} ... :::).
+ * Типы: info, warning, success, error. Custom commands для смены типа.
+ */
 import { registerDirective } from "@/editor/directives/registry";
 import { AlertWidget } from "./alert.widget";
 import { Editor } from "@tiptap/core";

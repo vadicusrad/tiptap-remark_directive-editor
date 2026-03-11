@@ -5,7 +5,10 @@ import type { ReactNodeViewProps } from "@tiptap/react";
 import { getLeafDirective } from "./registry";
 import { BlockPluginWrapper } from "@/editor/plugins/block-plugin-wrapper";
 
-/** Динамический рендер leaf-директивы по имени из реестра */
+/**
+ * NodeView для leaf-директив (::name{props}).
+ * Рендерит виджет по node.attrs.name из реестра, оборачивает в BlockPluginWrapper.
+ */
 export function DirectiveNodeView(props: ReactNodeViewProps) {
   const { node, editor, getPos, deleteNode } = props;
   const name = node.attrs.name as string;

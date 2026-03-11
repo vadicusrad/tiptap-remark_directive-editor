@@ -1,3 +1,4 @@
+/** Плагин Badge: inline-метка (:badge[текст]) */
 import { registerDirective } from "@/editor/directives/registry";
 import { BadgeWidget } from "./badge.widget";
 

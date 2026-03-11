@@ -7,20 +7,22 @@ import {
   getAllDirectives,
 } from "@/editor/directives";
 
+// Импорты выполняют registerDirective() и заполняют реестр директив.
+// Порядок: эти импорты → getAllDirectives() при инициализации allSlashMenuItems.
 import "./alert/alert.plugin";
 import "./lead/lead.plugin";
 import "./tooltip/tooltip.plugin";
 import "./badge/badge.plugin";
 import "./product/product.plugin";
 
-/** Все TipTap extensions */
+/** Все TipTap extensions: directiveLeaf, directiveContainer, directiveText */
 export const allExtensions: AnyExtension[] = [
   DirectiveLeafExtension,
   DirectiveContainerExtension,
   DirectiveTextExtension,
 ];
 
-/** Пункты slash-меню из registerDirective */
+/** Пункты slash-меню, собранные из директив с slashCommand и slashMenu */
 export const allSlashMenuItems: {
   id: string;
   title: string;
@@ -44,14 +46,14 @@ export const allSlashMenuItems: {
           d.type === "leaf"
             ? "directiveLeaf"
             : d.type === "container"
-              ? "directiveContainer"
-              : "directiveText";
+            ? "directiveContainer"
+            : "directiveText";
         const content =
           d.type === "container"
             ? [{ type: "paragraph" }]
             : d.type === "text"
-              ? [{ type: "text", text: " " }]
-              : undefined;
+            ? [{ type: "text", text: " " }]
+            : undefined;
         editor
           .chain()
           .focus()
